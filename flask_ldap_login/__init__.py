@@ -163,7 +163,6 @@ class LDAPLoginManager(object):
 
 
     def direct_bind(self, username, password):
-        import pdb;pdb.set_trace()
         ctx = {'username':username, 'password':password}
         scope = self.config.get('SCOPE', ldap.SCOPE_SUBTREE)
         user = self.config['BIND_DN'] % ctx
@@ -176,13 +175,25 @@ class LDAPLoginManager(object):
         self.conn.unbind_s()
         return self.format_results(results)
 
+
+    def connect(self):
+        self.conn = ldap.initialize(self.config['URI'])
+
+        for opt, value in self.config.get('OPTIONS', {}).items():
+            if isinstance(opt, str):
+                opt = getattr(ldap, opt)
+            self.conn.set_option(opt, value)
+
+        if self.config.get('START_TLS'):
+            self.conn.start_tls_s()
+
     def ldap_login(self, username, password):
         """
         Authenticate a user using ldap. This will return a userdata dict
         if successfull. 
         ldap_login will return None if the user does not exist or if the credentials are invalid 
         """
-        self.conn = ldap.initialize(self.config['URI'])
+        self.connect()
 
         if self.config.get('USER_SEARCH'):
             result = self.bind_search(username, password)

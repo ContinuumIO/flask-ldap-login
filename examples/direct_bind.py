@@ -12,6 +12,10 @@ LDAP = {
         'location':'l',
         'email': 'mail',
         },
+
+    'OPTIONS': {
+                'OPT_PROTOCOL_VERSION': 3,
+                }
 }
 
 from base_app import app, User
