@@ -6,9 +6,9 @@ Flask ldap login is designed to work on top of an existing application.
 It will:
 
  * Connect to an ldap server
- * Store the ldap user into your servers DB
+ * Lookup ldap users using a direct bind or bind/search method
+ * Store the ldap user into your server's DB
  * Integrate ldap into an existing web application
-
 
 It will not:
 
