@@ -1,7 +1,20 @@
 flask-ldap
 ==========
 
-Flask ldap integration
+Flask ldap login is designed to work on top of an existing application.
+
+It will:
+
+ * Connect to an ldap server
+ * Store the ldap user into your servers DB
+ * Integrate ldap into an existing web application
+
+
+It will not:
+
+ *  Provide `login_required` or any other route decorators
+ *  Store the active user’s ID in the session. Use an existing framework like
+    [Flask-Login](https://flask-login.readthedocs.org/en/latest/) for this task.
 
 # Configuring your Application
 
@@ -109,7 +122,7 @@ For example:
 
 ### START_TLS
 
-If True, each connection to the LDAP server will call start_tls_s()
+If `True`, each connection to the LDAP server will call `start_tls_s()`
 to enable TLS encryption over the standard LDAP port.
 There are a number of configuration options that can be given to `OPTIONS` that affect the TLS connection.
 For example, `OPT_X_TLS_REQUIRE_CERT` can be set to `OPT_X_TLS_NEVER` to disable certificate verification,
@@ -118,7 +131,7 @@ perhaps to allow self-signed certificates.
 
 ### OPTIONS
 
-This stores ldap specific options eg
+This stores ldap specific options eg:
 
     LDAP={ 'OPTIONS': { 'OPT_PROTOCOL_VERSION': 3,
                         'OPT_X_TLS_REQUIRE_CERT': 'OPT_X_TLS_NEVER'

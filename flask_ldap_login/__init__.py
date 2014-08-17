@@ -177,11 +177,16 @@ class LDAPLoginManager(object):
 
 
     def connect(self):
+        'initialize ldap connection and set options'
         self.conn = ldap.initialize(self.config['URI'])
 
         for opt, value in self.config.get('OPTIONS', {}).items():
             if isinstance(opt, str):
                 opt = getattr(ldap, opt)
+
+            if isinstance(value, str):
+                value = getattr(ldap, value)
+
             self.conn.set_option(opt, value)
 
         if self.config.get('START_TLS'):
