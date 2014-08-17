@@ -23,7 +23,7 @@ update the application like::
     
 :param USER_SEARCH:
     An  dict that will locate a user in the directory.
-    The dict object may contain 'base' (required), filter (required) and scope (optional)
+    The dict object may contain 'base' (required), 'filter' (required) and 'scope' (optional)
     base: The base DN to search
     filter:  Should contain the placeholder %(username)s for the username.
     scope:  
