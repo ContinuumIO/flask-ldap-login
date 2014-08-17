@@ -1,10 +1,12 @@
+"""
+Check that application ldap creds are set up correctly
+"""
 from argparse import ArgumentParser
-from werkzeug.utils import import_string
 from pprint import pprint
-
+from werkzeug.utils import import_string
 
 def main():
-    parser = ArgumentParser()
+    parser = ArgumentParser(description=__doc__)
     parser.add_argument('-a', '--app', required=True)
     parser.add_argument('-u', '--username', required=True)
     parser.add_argument('-p', '--password', required=True)
@@ -16,13 +18,13 @@ def main():
         import_name, appname = args.app, 'app'
     module = import_string(import_name)
     app = getattr(module, appname)
-    
+
     userdata = app.ldap_login_manager.ldap_login(args.username, args.password)
     if userdata is None:
+        print "Invalid username/password"
+    else:
         print "Got userdata for %s" % args.username
         pprint(userdata)
-    else
-        print "Invalid username/password"
 
 
 if __name__ == '__main__':
