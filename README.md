@@ -16,6 +16,12 @@ It will not:
  *  Store the active user’s ID in the session. Use an existing framework like
     [Flask-Login](https://flask-login.readthedocs.org/en/latest/) for this task.
 
+# Examples
+
+
+ *  [Bind/Search](https://github.com/srossross/flask-ldap-login/blob/master/examples/bind_search.py)
+ *  [Direct Bind](https://github.com/srossross/flask-ldap-login/blob/master/examples/direct_bind.py)
+
 # Configuring your Application
 
 The most important part of an application that uses flask-ldap-Login is the `LDAPLoginManager` class.
