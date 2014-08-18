@@ -149,3 +149,20 @@ This stores ldap specific options eg:
                         'OPT_X_TLS_REQUIRE_CERT': 'OPT_X_TLS_NEVER'
                       }
          }
+
+## TLS (secure LDAP)
+
+To enable a secure TLS connection you must set `START_TLS` to True.
+There are a number of configuration options that can be given to `OPTIONS` that affect the TLS connection.
+For example, `OPT_X_TLS_REQUIRE_CERT` `OPT_X_TLS_NEVER` to disable certificate verification, perhaps to allow self-signed certificates.
+
+
+    LDAP={ 'START_TLS': True,
+           'OPTIONS': { 'OPT_PROTOCOL_VERSION': 3,
+                        'OPT_X_TLS_DEMAND', True,
+                        'OPT_X_TLS_REQUIRE_CERT': 'OPT_X_TLS_NEVER',
+                        'OPT_X_TLS_CACERTFILE', '/path/to/certfile')
+
+                      }
+         }
+
