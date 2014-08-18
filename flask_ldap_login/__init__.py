@@ -120,6 +120,7 @@ class LDAPLoginManager(object):
 
     @property
     def attrlist(self):
+        'Transform the KEY_MAP paramiter into an attrlist for ldap filters'
         keymap = self.config.get('KEY_MAP')
         if keymap:
             return keymap.values()
@@ -128,7 +129,9 @@ class LDAPLoginManager(object):
 
 
     def bind_search(self, username, password):
-
+        """
+        Bind to BIND_DN/BIND_AUTH then search for user to perform lookup. 
+        """
         ctx = {'username':username, 'password':password}
 
         user = self.config['BIND_DN'] % ctx
@@ -163,6 +166,9 @@ class LDAPLoginManager(object):
 
 
     def direct_bind(self, username, password):
+        """
+        Bind to username/password directly
+        """
         ctx = {'username':username, 'password':password}
         scope = self.config.get('SCOPE', ldap.SCOPE_SUBTREE)
         user = self.config['BIND_DN'] % ctx
@@ -209,13 +215,17 @@ class LDAPLoginManager(object):
 
 class LDAPLoginForm(wtf.Form):
     """
-    This is a form to be subclassed by your application
+    This is a form to be subclassed by your application. 
+    
+    Once validiated will have a `form.user` object that contains 
+    a user object.
     """
 
     username = wtf.TextField('Username', validators=[wtf.Required()])
     password = wtf.TextField('Password', validators=[wtf.Required()])
 
-    def validate_ldap(self, *args, **kwargs):
+    def validate_ldap(self):
+        'Validate the username/password data against ldap directory'
         ldap_mgr = current_app.ldap_login_manager
         username = self.username.data
         password = self.password.data
@@ -241,6 +251,12 @@ class LDAPLoginForm(wtf.Form):
 
 
     def validate(self, *args, **kwargs):
+        """
+        Validates the form by calling `validate` on each field, passing any
+        extra `Form.validate_<fieldname>` validators to the field validator.
+        
+        also calls `validate_ldap` 
+        """
 
         valid = wtf.Form.validate(self, *args, **kwargs)
         if not valid: return valid

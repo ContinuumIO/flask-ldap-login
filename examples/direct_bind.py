@@ -2,10 +2,16 @@ from flask_ldap_login import LDAPLoginForm, LDAPLoginManager
 from flask_login import login_user
 from flask import request, render_template, redirect
 
+#===============================================================================
+# Config Vars
+#===============================================================================
 LDAP = {
     'URI': 'ldap://localhost:8389',
+
+    # Bind directly to this base DN.
     'BIND_DN': 'uid=%(username)s,ou=People,dc=continuum,dc=io',
 
+    # Map ldap keys into application specific keys
     'KEY_MAP': {
         'name':'cn',
         'company': 'o',
@@ -13,6 +19,7 @@ LDAP = {
         'email': 'mail',
         },
 
+    # LDAP connection options
     'OPTIONS': {
                 'OPT_PROTOCOL_VERSION': 3,
                 }

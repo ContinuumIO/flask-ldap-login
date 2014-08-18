@@ -18,7 +18,6 @@ It will not:
 
 # Examples
 
-
  *  [Bind/Search](https://github.com/srossross/flask-ldap-login/blob/master/examples/bind_search.py)
  *  [Direct Bind](https://github.com/srossross/flask-ldap-login/blob/master/examples/direct_bind.py)
 
@@ -36,6 +35,13 @@ and how to store the user into the application's database.
 Once the actual application object has been created, you can configure it for login with:
 
     login_manager.init_app(app)
+
+# Testing your Configuration
+
+Run the `flask-ldap-login-check` command against your app
+to test that it can successully connect to your ldap server.
+
+    flask-ldap-login-check examples.direct_bind:app --username 'me' --password 'super secret'
 
 # How it Works
 

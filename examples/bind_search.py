@@ -2,13 +2,23 @@ from flask_ldap_login import LDAPLoginForm, LDAPLoginManager
 from flask_login import login_user
 from flask import request, render_template, redirect
 
+#===============================================================================
+# Config Vars
+#===============================================================================
+
 LDAP = {
     'URI': 'ldap://localhost:8389',
+
+    # This BIND_DN/BIND_PASSORD default to '', this is shown here for demonstrative purposes
+    # The values '' perform an anonymous bind so we may use search/bind method
     'BIND_DN': '',
     'BIND_PASSORD': '',
 
+    # Adding the USER_SEARCH field tells the flask-ldap-login that we areusing
+    # the search/bind method
     'USER_SEARCH': {'base': 'dc=continuum,dc=io', 'filter': 'uid=%(username)s'},
 
+    # Map ldap keys into application specific keys
     'KEY_MAP': {
         'name':'cn',
         'company': 'o',
@@ -17,7 +27,11 @@ LDAP = {
         },
 }
 
+#===============================================================================
+# Import existing application
+#===============================================================================
 from base_app import app, User
+
 app.config.update(LDAP=LDAP)
 ldap_mgr = LDAPLoginManager(app)
 
