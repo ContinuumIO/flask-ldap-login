@@ -4,9 +4,9 @@ from setuptools import setup, find_packages
 setup(
     name='flask-ldap-login',
     version='0.1',
-    author='Continuum Analitics',
-    author_email='srossross@gmail.com',
-    url='https://github.com/srossross/flask-ldap-login',
+    author='Continuum Analytics',
+    author_email='dev@continuum.io',
+    url='https://github.com/ContinuumIO/flask-ldap-login',
     packages=find_packages(),
 
     include_package_data=True,
