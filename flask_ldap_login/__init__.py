@@ -68,8 +68,6 @@ class LDAPLoginManager(object):
             self.init_app(app)
 
 
-        if self.config.get('USER_SEARCH') and not isinstance(self.config['USER_SEARCH'], list):
-            self.config['USER_SEARCH'] = [self.config['USER_SEARCH']]
 
         self._save_user = None
 
@@ -79,14 +77,16 @@ class LDAPLoginManager(object):
         Configures an application. This registers an `after_request` call, and
         attaches this `LoginManager` to it as `app.login_manager`.
         '''
-        if 'LDAP' not in app.config:
-            raise ValueError("LDAPLoginManager expected 'LDAP' to be in the flask connection options")
 
-        self._config = app.config.get('LDAP')
+        self._config = app.config.get('LDAP', {})
         app.ldap_login_manager = self
 
         self.config.setdefault('BIND_DN', '')
         self.config.setdefault('BIND_AUTH', '')
+        self.config.setdefault('URI', 'ldap://127.0.0.1')
+        if self.config.get('USER_SEARCH') and not isinstance(self.config['USER_SEARCH'], list):
+            self.config['USER_SEARCH'] = [self.config['USER_SEARCH']]
+
 
     def format_results(self, results):
         """
@@ -222,7 +222,8 @@ class LDAPLoginForm(wtf.Form):
     """
 
     username = wtf.TextField('Username', validators=[wtf.Required()])
-    password = wtf.TextField('Password', validators=[wtf.Required()])
+    password = wtf.PasswordField('Password', validators=[wtf.Required()])
+    remember_me = wtf.BooleanField('Remember Me', default=True)
 
     def validate_ldap(self):
         'Validate the username/password data against ldap directory'
