@@ -40,10 +40,15 @@ update the application like::
 
 
 """
-import ldap
-from flask.ext import wtf
+import logging
+
 from flask import current_app, flash
 import flask
+from flask.ext import wtf
+import ldap
+
+
+log = logging.getLogger(__name__)
 
 def scalar(value):
     """
@@ -84,6 +89,7 @@ class LDAPLoginManager(object):
         self.config.setdefault('BIND_DN', '')
         self.config.setdefault('BIND_AUTH', '')
         self.config.setdefault('URI', 'ldap://127.0.0.1')
+
         if self.config.get('USER_SEARCH') and not isinstance(self.config['USER_SEARCH'], list):
             self.config['USER_SEARCH'] = [self.config['USER_SEARCH']]
 
@@ -132,14 +138,19 @@ class LDAPLoginManager(object):
         """
         Bind to BIND_DN/BIND_AUTH then search for user to perform lookup. 
         """
+
+        log.debug("Performing bind/search")
+
         ctx = {'username':username, 'password':password}
 
         user = self.config['BIND_DN'] % ctx
 
         bind_auth = self.config['BIND_AUTH']
         try:
+            log.debug("Binding with the BIND_DN %s" % user)
             self.conn.simple_bind_s(user, bind_auth)
         except ldap.INVALID_CREDENTIALS:
+            log.debug("Could not connect bind with the BIND_DN=%s" % user)
             return None
 
         user_search = self.config.get('USER_SEARCH')
@@ -149,16 +160,21 @@ class LDAPLoginManager(object):
             base = search['base']
             filt = search['filter'] % ctx
             scope = search.get('scope', ldap.SCOPE_SUBTREE)
+            log.debug("Search for base=%s filter=%s" % (base, filt))
             results = self.conn.search_s(base, scope, filt, attrlist=self.attrlist)
             if results:
+                log.debug("User with DN=%s found" % results[0][0])
                 try:
                     self.conn.simple_bind_s(results[0][0], password)
                 except ldap.INVALID_CREDENTIALS:
                     self.conn.simple_bind_s(user, bind_auth)
+                    log.debug("Username/password mismatch, continue search...")
                     continue
                 else:
+                    log.debug("Username/password OK")
                     break
 
+        log.debug("Unbind")
         self.conn.unbind_s()
 
         return self.format_results(results)
@@ -168,11 +184,14 @@ class LDAPLoginManager(object):
         """
         Bind to username/password directly
         """
+        log.debug("Performing direct bind")
+
         ctx = {'username':username, 'password':password}
         scope = self.config.get('SCOPE', ldap.SCOPE_SUBTREE)
         user = self.config['BIND_DN'] % ctx
 
         try:
+            log.debug("Binding with the BIND_DN %s" % user)
             self.conn.simple_bind_s(user, password)
         except ldap.INVALID_CREDENTIALS:
             return None
@@ -183,6 +202,7 @@ class LDAPLoginManager(object):
 
     def connect(self):
         'initialize ldap connection and set options'
+        log.debug("Connecting to ldap server %s" % self.config['URI'])
         self.conn = ldap.initialize(self.config['URI'])
 
         for opt, value in self.config.get('OPTIONS', {}).items():
@@ -195,6 +215,7 @@ class LDAPLoginManager(object):
             self.conn.set_option(opt, value)
 
         if self.config.get('START_TLS'):
+            log.debug("Starting TLS")
             self.conn.start_tls_s()
 
     def ldap_login(self, username, password):
