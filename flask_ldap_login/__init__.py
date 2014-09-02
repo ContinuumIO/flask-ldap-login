@@ -15,10 +15,10 @@ update the application like::
     list of URIs to try in sequence.
     
 :param BIND_DN:
-    The distinguished name to use when binding to the LDAP server (with BIND_PASSWORD). 
+    The distinguished name to use when binding to the LDAP server (with BIND_AUTH). 
     Use the empty string (the default) for an anonymous bind. 
 
-:param BIND_PASSWORD:
+:param BIND_AUTH:
     The password to use with BIND_DN
     
 :param USER_SEARCH:
@@ -137,7 +137,6 @@ class LDAPLoginManager(object):
         user = self.config['BIND_DN'] % ctx
 
         bind_auth = self.config['BIND_AUTH']
-
         try:
             self.conn.simple_bind_s(user, bind_auth)
         except ldap.INVALID_CREDENTIALS:
