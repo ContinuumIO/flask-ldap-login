@@ -12,7 +12,7 @@ LDAP = {
     # This BIND_DN/BIND_PASSORD default to '', this is shown here for demonstrative purposes
     # The values '' perform an anonymous bind so we may use search/bind method
     'BIND_DN': '',
-    'BIND_PASSORD': '',
+    'BIND_AUTH': '',
 
     # Adding the USER_SEARCH field tells the flask-ldap-login that we areusing
     # the search/bind method

@@ -100,10 +100,10 @@ list of URIs to try in sequence.
 
 ### BIND_DN:
 
-The distinguished name to use when binding to the LDAP server (with `BIND_PASSWORD`).
+The distinguished name to use when binding to the LDAP server (with `BIND_AUTH`).
 Use the empty string (the default) for an anonymous bind.
 
-### BIND_PASSWORD
+### BIND_AUTH
 
 The password to use with `BIND_DN`
 
