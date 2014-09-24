@@ -1,8 +1,10 @@
-from flask.ext import wtf
+from flask.ext.wtf import Form
+import wtforms
+from wtforms import validators
 from flask import flash, current_app
 import ldap
 
-class LDAPLoginForm(wtf.Form):
+class LDAPLoginForm(Form):
     """
     This is a form to be subclassed by your application. 
     
@@ -10,9 +12,9 @@ class LDAPLoginForm(wtf.Form):
     a user object.
     """
 
-    username = wtf.TextField('Username', validators=[wtf.Required()])
-    password = wtf.PasswordField('Password', validators=[wtf.Required()])
-    remember_me = wtf.BooleanField('Remember Me', default=True)
+    username = wtforms.TextField('Username', validators=[validators.Required()])
+    password = wtforms.PasswordField('Password', validators=[validators.Required()])
+    remember_me = wtforms.BooleanField('Remember Me', default=True)
 
     def validate_ldap(self):
         'Validate the username/password data against ldap directory'
@@ -48,7 +50,7 @@ class LDAPLoginForm(wtf.Form):
         also calls `validate_ldap` 
         """
 
-        valid = wtf.Form.validate(self, *args, **kwargs)
+        valid = Form.validate(self, *args, **kwargs)
         if not valid: return valid
 
         return self.validate_ldap()

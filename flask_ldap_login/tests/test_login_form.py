@@ -6,17 +6,16 @@ from flask_testing import TestCase as FlaskTestCase
 from flask_ldap_login import LDAPLoginManager
 
 from flask_ldap_login.tests.fixture import LDAPTestFixture
-from flask_ldap_login.forms import LDAPLoginForm
+from flask_ldap_login.forms import LDAPLoginForm, Form
 
 
-class TestLoginManager(LDAPTestFixture, FlaskTestCase):
+class TestLoginForm(LDAPTestFixture, FlaskTestCase):
 
     def create_app(self):
         app = flask.Flask(__name__)
         LDAP = dict(BIND_DN='x=%(username)s')
         app.config.update(LDAP=LDAP)
         app.config['SECRET_KEY'] = 'abc123'
-        app.config['CSRF_ENABLED'] = False
 
         mgr = LDAPLoginManager(app)
         mgr.save_user(self.save_user)
@@ -27,9 +26,10 @@ class TestLoginManager(LDAPTestFixture, FlaskTestCase):
 
     def test_empty_login_form(self):
 
-        with self.app.test_request_context('/login', method="POST", data={'data':1}):
+        Form
+        with self.app.test_request_context('/login', method="POST", data={}):
 
-            form = LDAPLoginForm(flask.request.form)
+            form = LDAPLoginForm(flask.request.form, csrf_enabled=False)
             self.assertFalse(form.validate_on_submit())
             self.assertIn('username', form.errors)
             self.assertIn('password', form.errors)
@@ -40,7 +40,7 @@ class TestLoginManager(LDAPTestFixture, FlaskTestCase):
         self._user = None
         with self.app.test_request_context('/login', method="POST", data=data):
 
-            form = LDAPLoginForm(flask.request.form)
+            form = LDAPLoginForm(flask.request.form, csrf_enabled=False)
             self.assertTrue(form.validate_on_submit())
 
         # Test that save_user was called
