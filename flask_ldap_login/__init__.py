@@ -71,8 +71,7 @@ class LDAPLoginManager(object):
         if app is not None:
             self.init_app(app)
 
-
-
+        self.conn = None
         self._save_user = None
 
 
