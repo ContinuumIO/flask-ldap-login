@@ -3,7 +3,9 @@ Check that application ldap creds are set up correctly.
 """
 from argparse import ArgumentParser
 from pprint import pprint
+
 from werkzeug.utils import import_string
+
 
 def main():
     parser = ArgumentParser(description=__doc__)
@@ -20,6 +22,7 @@ def main():
         import_name, appname = args.app_module.split(':', 1)
     else:
         import_name, appname = args.app_module, 'app'
+
     module = import_string(import_name)
     app = getattr(module, appname)
 
