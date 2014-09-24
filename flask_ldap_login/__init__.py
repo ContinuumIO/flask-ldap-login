@@ -33,7 +33,7 @@ update the application like::
         
 :param KEY_MAP:
     This is a dict mapping application context to ldap.
-    An application may expect user data to be consistant and not all ldap
+    An application may expect user data to be consistent and not all ldap
     setups use the same configuration::
      
         'application_key': 'ldap_key'   
@@ -42,11 +42,10 @@ update the application like::
 """
 import logging
 
-from flask import current_app, flash
 import flask
-from flask.ext import wtf
 import ldap
 
+from .forms import LDAPLoginForm
 
 log = logging.getLogger(__name__)
 
@@ -72,8 +71,7 @@ class LDAPLoginManager(object):
         if app is not None:
             self.init_app(app)
 
-
-
+        self.conn = None
         self._save_user = None
 
 
@@ -233,55 +231,4 @@ class LDAPLoginManager(object):
             result = self.direct_bind(username, password)
         return result
 
-
-class LDAPLoginForm(wtf.Form):
-    """
-    This is a form to be subclassed by your application. 
-    
-    Once validiated will have a `form.user` object that contains 
-    a user object.
-    """
-
-    username = wtf.TextField('Username', validators=[wtf.Required()])
-    password = wtf.PasswordField('Password', validators=[wtf.Required()])
-    remember_me = wtf.BooleanField('Remember Me', default=True)
-
-    def validate_ldap(self):
-        'Validate the username/password data against ldap directory'
-        ldap_mgr = current_app.ldap_login_manager
-        username = self.username.data
-        password = self.password.data
-        try:
-            userdata = ldap_mgr.ldap_login(username, password)
-        except ldap.INVALID_CREDENTIALS:
-            flash("Invalid LDAP credentials", 'danger')
-            return False
-        except ldap.LDAPError as err:
-            if isinstance(err.message, dict):
-                message = err.message.get('desc', str(err))
-            else:
-                message = str(err.message)
-            flash(message, 'danger')
-            return False
-
-        if userdata is None:
-            flash("Invalid LDAP credentials", 'danger')
-            return False
-
-        self.user = ldap_mgr._save_user(username, userdata)
-        return True
-
-
-    def validate(self, *args, **kwargs):
-        """
-        Validates the form by calling `validate` on each field, passing any
-        extra `Form.validate_<fieldname>` validators to the field validator.
-        
-        also calls `validate_ldap` 
-        """
-
-        valid = wtf.Form.validate(self, *args, **kwargs)
-        if not valid: return valid
-
-        return self.validate_ldap()
 
