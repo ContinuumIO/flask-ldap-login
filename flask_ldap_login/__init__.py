@@ -167,6 +167,7 @@ class LDAPLoginManager(object):
                 except ldap.INVALID_CREDENTIALS:
                     self.conn.simple_bind_s(user, bind_auth)
                     log.debug("Username/password mismatch, continue search...")
+                    results = None
                     continue
                 else:
                     log.debug("Username/password OK")
