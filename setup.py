@@ -12,6 +12,11 @@ setup(
     include_package_data=True,
     zip_safe=False,
 
+    install_requires=['flask',
+                      'flask-wtf',
+                      'python-ldap'
+                      ],
+
     entry_points={
         'console_scripts': [
             'flask-ldap-login-check = flask_ldap_login.check:main',
