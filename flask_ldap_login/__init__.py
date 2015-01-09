@@ -208,9 +208,11 @@ class LDAPLoginManager(object):
             if isinstance(opt, str):
                 opt = getattr(ldap, opt)
 
-            if isinstance(value, str):
-                value = getattr(ldap, value)
-
+            try:
+                if isinstance(value, str):
+                    value = getattr(ldap, value)
+            except AttributeError:
+                pass
             self.conn.set_option(opt, value)
 
         if self.config.get('START_TLS'):
