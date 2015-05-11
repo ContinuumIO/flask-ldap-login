@@ -127,7 +127,9 @@ class LDAPLoginManager(object):
         'Transform the KEY_MAP paramiter into an attrlist for ldap filters'
         keymap = self.config.get('KEY_MAP')
         if keymap:
-            return keymap.values()
+            # https://github.com/ContinuumIO/flask-ldap-login/issues/11
+            # https://continuumsupport.zendesk.com/agent/tickets/393 
+            return [ s.encode('utf-8') for s in keymap.values() ]
         else:
             return None
 
