@@ -1,6 +1,6 @@
 package:
   name: flask-ldap-login
-  version: !!str 0.3.0
+  version: !!str 0.3.1
 
 build:
   entry_points:
