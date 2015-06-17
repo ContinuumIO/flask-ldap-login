@@ -58,6 +58,15 @@ def scalar(value):
     return value
 
 
+def _is_utf8(s):
+    try:
+        if isinstance(s, str):
+            us = s.decode('utf-8')
+        
+        return True
+    except UnicodeDecodeError:
+        return False
+
 class LDAPLoginManager(object):
     '''
     This object is used to hold the settings used for LDAP user lookup. Instances of
@@ -102,9 +111,9 @@ class LDAPLoginManager(object):
 
         keymap = self.config.get('KEY_MAP')
         if keymap:
-            return {key:scalar(userobj.get(value)) for key, value in keymap.items()}
+            return {key:scalar(userobj.get(value)) for key, value in keymap.items() if _is_utf8(scalar(userobj.get(value))) }
         else:
-            return {key:scalar(value) for key, value in userobj.items()}
+            return {key:scalar(value) for key, value in userobj.items() if _is_utf8(scalar(value)) }
 
     def save_user(self, callback):
         '''
