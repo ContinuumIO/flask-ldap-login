@@ -7,36 +7,36 @@ To set the flask-ldap-login config variables
 update the application like::
 
     app.config.update(LDAP={'URI': ..., })
- 
-:param URI: 
-    Start by setting URI to point to your server. 
-    The value of this setting can be anything that your LDAP library supports. 
-    For instance, openldap may allow you to give a comma- or space-separated 
+
+:param URI:
+    Start by setting URI to point to your server.
+    The value of this setting can be anything that your LDAP library supports.
+    For instance, openldap may allow you to give a comma- or space-separated
     list of URIs to try in sequence.
-    
+
 :param BIND_DN:
-    The distinguished name to use when binding to the LDAP server (with BIND_AUTH). 
-    Use the empty string (the default) for an anonymous bind. 
+    The distinguished name to use when binding to the LDAP server (with BIND_AUTH).
+    Use the empty string (the default) for an anonymous bind.
 
 :param BIND_AUTH:
     The password to use with BIND_DN
-    
+
 :param USER_SEARCH:
     An  dict that will locate a user in the directory.
     The dict object may contain 'base' (required), 'filter' (required) and 'scope' (optional)
     base: The base DN to search
     filter:  Should contain the placeholder %(username)s for the username.
-    scope:  
-     
+    scope:
+
     e.g.::
         {'base': 'dc=continuum,dc=io', 'filter': 'uid=%(username)s'}
-        
+
 :param KEY_MAP:
     This is a dict mapping application context to ldap.
     An application may expect user data to be consistent and not all ldap
     setups use the same configuration::
-     
-        'application_key': 'ldap_key'   
+
+        'application_key': 'ldap_key'
 
 
 """
@@ -51,7 +51,7 @@ log = logging.getLogger(__name__)
 
 def scalar(value):
     """
-    Take return a value[0] if `value` is a list of length 1 
+    Take return a value[0] if `value` is a list of length 1
     """
     if isinstance(value, (list, tuple)) and len(value) == 1:
         return value[0]
@@ -108,7 +108,7 @@ class LDAPLoginManager(object):
 
     def save_user(self, callback):
         '''
-        This sets the callback for staving a user that has been looked up from from ldap. 
+        This sets the callback for staving a user that has been looked up from from ldap.
         The function you set should take a username (unicode) and and userdata (dict).
 
         :param callback: The callback for retrieving a user object.
@@ -127,14 +127,14 @@ class LDAPLoginManager(object):
         'Transform the KEY_MAP paramiter into an attrlist for ldap filters'
         keymap = self.config.get('KEY_MAP')
         if keymap:
-            return keymap.values()
+            return map(str, keymap.values())
         else:
             return None
 
 
     def bind_search(self, username, password):
         """
-        Bind to BIND_DN/BIND_AUTH then search for user to perform lookup. 
+        Bind to BIND_DN/BIND_AUTH then search for user to perform lookup.
         """
 
         log.debug("Performing bind/search")
@@ -222,8 +222,8 @@ class LDAPLoginManager(object):
     def ldap_login(self, username, password):
         """
         Authenticate a user using ldap. This will return a userdata dict
-        if successfull. 
-        ldap_login will return None if the user does not exist or if the credentials are invalid 
+        if successfull.
+        ldap_login will return None if the user does not exist or if the credentials are invalid
         """
         self.connect()
 
