@@ -104,7 +104,7 @@ class LDAPLoginManager(object):
         if keymap:
             return dict([(key,scalar(userobj.get(value))) for key, value in keymap.items()])
         else:
-            return dict([(key:scalar(value)) for key, value in userobj.items()])
+            return dict([(key,scalar(value)) for key, value in userobj.items()])
 
     def save_user(self, callback):
         '''
