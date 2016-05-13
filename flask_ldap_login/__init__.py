@@ -71,9 +71,16 @@ class LDAPLoginManager(object):
         if app is not None:
             self.init_app(app)
 
+        self._raise_errors = False
         self.conn = None
         self._save_user = None
 
+    def set_raise_errors(self, state=True):
+        '''
+        Set the _raise_errors flags to allow for the calling code to provide error handling.
+        This is especially helpful for debugging from flask_ldap_login_check.
+        '''
+        self._raise_errors=state
 
     def init_app(self, app):
         '''
@@ -90,7 +97,6 @@ class LDAPLoginManager(object):
 
         if self.config.get('USER_SEARCH') and not isinstance(self.config['USER_SEARCH'], list):
             self.config['USER_SEARCH'] = [self.config['USER_SEARCH']]
-
 
     def format_results(self, results):
         """
@@ -148,12 +154,16 @@ class LDAPLoginManager(object):
             log.debug("Binding with the BIND_DN %s" % user)
             self.conn.simple_bind_s(user, bind_auth)
         except ldap.INVALID_CREDENTIALS:
-            log.debug("Could not connect bind with the BIND_DN=%s" % user)
+            msg = "Could not connect bind with the BIND_DN=%s" % user
+            log.debug(msg)
+            if self._raise_errors:
+                raise ldap.INVALID_CREDENTIALS(msg)
             return None
 
         user_search = self.config.get('USER_SEARCH')
 
         results = None
+        found_user = False
         for search in user_search:
             base = search['base']
             filt = search['filter'] % ctx
@@ -161,6 +171,7 @@ class LDAPLoginManager(object):
             log.debug("Search for base=%s filter=%s" % (base, filt))
             results = self.conn.search_s(base, scope, filt, attrlist=self.attrlist)
             if results:
+                found_user = True
                 log.debug("User with DN=%s found" % results[0][0])
                 try:
                     self.conn.simple_bind_s(results[0][0], password)
@@ -172,6 +183,11 @@ class LDAPLoginManager(object):
                 else:
                     log.debug("Username/password OK")
                     break
+        if not results and self._raise_errors:
+            msg = "No users found matching search criteria: {}".format(user_search)
+            if found_user:
+                msg = "Username/password mismatch"
+            raise ldap.INVALID_CREDENTIALS(msg)
 
         log.debug("Unbind")
         self.conn.unbind_s()
@@ -193,6 +209,8 @@ class LDAPLoginManager(object):
             log.debug("Binding with the BIND_DN %s" % user)
             self.conn.simple_bind_s(user, password)
         except ldap.INVALID_CREDENTIALS:
+            if self._raise_errors:
+                raise ldap.INVALID_CREDENTIALS("Unable to do a direct bind with BIND_DN %s" % user)
             return None
         results = self.conn.search_s(user, scope, attrlist=self.attrlist)
         self.conn.unbind_s()
