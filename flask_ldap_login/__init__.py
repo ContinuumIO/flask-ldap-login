@@ -98,7 +98,9 @@ class LDAPLoginManager(object):
         """
         if not results:
             return None
+        userdn = results[0][0]
         userobj = results[0][1]
+        userobj['dn'] = userdn
 
         keymap = self.config.get('KEY_MAP')
         if keymap:
