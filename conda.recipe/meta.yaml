@@ -1,6 +1,8 @@
+{% set version = '0.3.1' %}
+
 package:
   name: flask-ldap-login
-  version: !!str 0.3.1
+  version: {{ version }}
 
 build:
   entry_points:
