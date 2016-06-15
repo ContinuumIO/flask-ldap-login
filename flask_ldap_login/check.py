@@ -26,13 +26,15 @@ def main():
     module = import_string(import_name)
     app = getattr(module, appname)
 
-    userdata = app.ldap_login_manager.ldap_login(args.username, args.password)
-    if userdata is None:
-        print "Invalid username/password"
-    else:
-        print "Got userdata for %s" % args.username
-        pprint(userdata)
+    app.ldap_login_manager.set_raise_errors()
 
+    try:
+        userdata = app.ldap_login_manager.ldap_login(args.username, args.password)
+        print("Got userdata for %s" % args.username)
+        pprint(userdata)
+    except Exception as e:
+        print("User not found")
+        pprint(e)
 
 if __name__ == '__main__':
     main()
