@@ -236,11 +236,11 @@ class LDAPLoginManager(object):
         self.conn = ldap.initialize(self.config['URI'])
 
         for opt, value in self.config.get('OPTIONS', {}).items():
-            if isinstance(opt, str):
+            if isinstance(opt, basestring):
                 opt = getattr(ldap, opt)
 
             try:
-                if isinstance(value, str):
+                if isinstance(value, basestring):
                     value = getattr(ldap, value)
             except AttributeError:
                 pass
