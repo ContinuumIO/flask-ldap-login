@@ -160,14 +160,14 @@ class LDAPLoginManager(object):
 
         ctx = {'username':username, 'password':password}
 
-        user = self.config['BIND_DN'] % ctx
+        bind_user = self.config['BIND_DN'] % ctx
 
         bind_auth = self.config['BIND_AUTH']
         try:
-            log.debug("Binding with the BIND_DN %s" % user)
-            self.conn.simple_bind_s(user, bind_auth)
+            log.debug("Binding with the BIND_DN %s" % bind_user)
+            self.conn.simple_bind_s(bind_user, bind_auth)
         except ldap.INVALID_CREDENTIALS:
-            msg = "Could not connect bind with the BIND_DN=%s" % user
+            msg = "Could not connect bind with the BIND_DN=%s" % bind_user
             log.debug(msg)
             if self._raise_errors:
                 raise ldap.INVALID_CREDENTIALS(msg)
@@ -184,17 +184,24 @@ class LDAPLoginManager(object):
             log.debug("Search for base=%s filter=%s" % (base, filt))
             results = self.conn.search_s(base, scope, filt, attrlist=self.attrlist)
             if results:
+                user = results[0][0]
                 found_user = True
-                log.debug("User with DN=%s found" % results[0][0])
+                log.debug("User with DN=%s found" % user)
                 try:
-                    self.conn.simple_bind_s(results[0][0], password)
+                    self.conn.simple_bind_s(user, password)
                 except ldap.INVALID_CREDENTIALS:
-                    self.conn.simple_bind_s(user, bind_auth)
                     log.debug("Username/password mismatch, continue search...")
+                    # Re-bind as bind user to continue search
+                    self.conn.simple_bind_s(bind_user, bind_auth)
                     results = None
                     continue
                 else:
                     log.debug("Username/password OK")
+                    map_on_1st_search = self.config.get('MAP_ATTRS_ON_INITIAL_SEARCH', False)
+                    if not map_on_1st_search:
+                        # Re-run search now that we're bound using the correct user/pwd
+                        # LDAP installations often give a fuller set of results when logged in as the actual user
+                        results = self.conn.search_s(user, scope, attrlist=self.attrlist)
                     break
         if not results and self._raise_errors:
             msg = "No users found matching search criteria: {}".format(user_search)
