@@ -1,3 +1,8 @@
+## Unreleased
+
+* `flask-ldap-login-check` learned to prompt for username/password instead of
+  requiring them to be passed as flags. (#22)
+
 ## 0.3.2 - 2016-06-15
 
 * Add `dn` as a userdata attribute
