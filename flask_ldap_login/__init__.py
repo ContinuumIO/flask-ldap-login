@@ -235,7 +235,15 @@ class LDAPLoginManager(object):
         log.debug("Connecting to ldap server %s" % self.config['URI'])
         self.conn = ldap.initialize(self.config['URI'])
 
-        for opt, value in self.config.get('OPTIONS', {}).items():
+        # There are some settings that can't be changed at runtime without a context restart.
+        # It's possible to refresh the context and apply the settings by setting OPT_X_TLS_NEWCTX
+        # to 0, but this needs to be the last option set, and since the config dictionary is not
+        # sorted, this is not necessarily true. Sort the list of options so that if OPT_X_TLS_NEWCTX
+        # is present, it is applied last.
+        options = self.config.get('OPTIONS', {}).items()
+        options.sort(key=lambda x: x[0] == 'OPT_X_TLS_NEWCTX')
+
+        for opt, value in options:
             if isinstance(opt, str):
                 opt = getattr(ldap, opt)
 
