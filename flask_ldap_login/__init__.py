@@ -41,6 +41,7 @@ update the application like::
 
 """
 import logging
+import sys
 
 import flask
 import ldap
@@ -48,6 +49,8 @@ import ldap
 from .forms import LDAPLoginForm
 
 log = logging.getLogger(__name__)
+PY2 = sys.version_info[0] < 3
+
 
 def scalar(value):
     """
@@ -66,6 +69,18 @@ def _is_utf8(s):
         return True
     except UnicodeDecodeError:
         return False
+
+
+def _to_native_str(s):
+    if PY2:
+        if isinstance(s, unicode):
+            return s.encode("utf-8")
+        return s
+    else:
+        if isinstance(s, bytes):
+            return s.decode("utf-8")
+        return s
+
 
 class LDAPLoginManager(object):
     '''
@@ -236,9 +251,12 @@ class LDAPLoginManager(object):
         self.conn = ldap.initialize(self.config['URI'])
 
         for opt, value in self.config.get('OPTIONS', {}).items():
+
+            opt = _to_native_str(opt)
             if isinstance(opt, str):
                 opt = getattr(ldap, opt)
 
+            value = _to_native_str(value)
             try:
                 if isinstance(value, str):
                     value = getattr(ldap, value)
