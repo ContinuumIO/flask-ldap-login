@@ -1,6 +1,8 @@
 """
 Check that application ldap creds are set up correctly.
 """
+from __future__ import absolute_import
+
 from argparse import ArgumentParser
 from pprint import pprint
 import getpass

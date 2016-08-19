@@ -1,8 +1,11 @@
+from __future__ import absolute_import
+
 from flask.ext.wtf import Form
 import wtforms
 from wtforms import validators
 from flask import flash, current_app
 import ldap
+
 
 class LDAPLoginForm(Form):
     """
