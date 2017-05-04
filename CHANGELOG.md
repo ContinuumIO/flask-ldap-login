@@ -1,4 +1,4 @@
-## Unreleased
+## 0.3.3 - 2017-04-05
 
 * `flask-ldap-login-check` learned to prompt for username/password instead of
   requiring them to be passed as flags. (#22)
