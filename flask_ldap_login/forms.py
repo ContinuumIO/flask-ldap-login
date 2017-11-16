@@ -1,4 +1,4 @@
-from flask.ext.wtf import Form
+from flask_wtf import FlaskForm as Form
 import wtforms
 from wtforms import validators
 from flask import flash, current_app
