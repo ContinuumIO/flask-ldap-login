@@ -25,7 +25,7 @@ class TestLoginManager(LDAPTestFixture, FlaskTestCase):
 
         result = loginmanager.direct_bind('user1', 'pass1')
         self.assertIsNotNone(result)
-        self.assertEqual(result, {'key': 'value1', 'uid': 'user1'})
+        self.assertEqual(result, {'dn': 'x=user1', 'key': 'value1', 'uid': 'user1'})
 
     def test_direct_bind_keymap(self):
 
@@ -56,7 +56,7 @@ class TestLoginManager(LDAPTestFixture, FlaskTestCase):
 
         result = loginmanager.bind_search('user1', 'pass1')
         self.assertIsNotNone(result)
-        self.assertEqual(result, {'key': 'value1', 'uid': 'user1'})
+        self.assertEqual(result, {'dn': 'x=user1', 'key': 'value1', 'uid': 'user1'})
 
     def test_bind_search_keymap(self):
 

@@ -51,7 +51,7 @@ log = logging.getLogger(__name__)
 
 def scalar(value):
     """
-    Take return a value[0] if `value` is a list of length 1 
+    Take return a value[0] if `value` is a list of length 1
     """
     if isinstance(value, (list, tuple)) and len(value) == 1:
         return value[0]
@@ -62,7 +62,7 @@ def _is_utf8(s):
     try:
         if isinstance(s, str):
             us = s.decode('utf-8')
-        
+
         return True
     except UnicodeDecodeError:
         return False
@@ -89,7 +89,7 @@ class LDAPLoginManager(object):
         Set the _raise_errors flags to allow for the calling code to provide error handling.
         This is especially helpful for debugging from flask_ldap_login_check.
         '''
-        self._raise_errors=state
+        self._raise_errors = state
 
     def init_app(self, app):
         '''
@@ -103,6 +103,9 @@ class LDAPLoginManager(object):
         self.config.setdefault('BIND_DN', '')
         self.config.setdefault('BIND_AUTH', '')
         self.config.setdefault('URI', 'ldap://127.0.0.1')
+        self.config.setdefault('OPTIONS', {})
+        # Referrals are disabled by default
+        self.config['OPTIONS'].setdefault(ldap.OPT_REFERRALS, ldap.OPT_OFF)
 
         if self.config.get('USER_SEARCH') and not isinstance(self.config['USER_SEARCH'], list):
             self.config['USER_SEARCH'] = [self.config['USER_SEARCH']]
@@ -145,15 +148,15 @@ class LDAPLoginManager(object):
         keymap = self.config.get('KEY_MAP')
         if keymap:
             # https://github.com/ContinuumIO/flask-ldap-login/issues/11
-            # https://continuumsupport.zendesk.com/agent/tickets/393 
-            return [ s.encode('utf-8') for s in keymap.values() ]
+            # https://continuumsupport.zendesk.com/agent/tickets/393
+            return [s.encode('utf-8') for s in keymap.values()]
         else:
             return None
 
 
     def bind_search(self, username, password):
         """
-        Bind to BIND_DN/BIND_AUTH then search for user to perform lookup. 
+        Bind to BIND_DN/BIND_AUTH then search for user to perform lookup.
         """
 
         log.debug("Performing bind/search")
@@ -235,7 +238,15 @@ class LDAPLoginManager(object):
         log.debug("Connecting to ldap server %s" % self.config['URI'])
         self.conn = ldap.initialize(self.config['URI'])
 
-        for opt, value in self.config.get('OPTIONS', {}).items():
+        # There are some settings that can't be changed at runtime without a context restart.
+        # It's possible to refresh the context and apply the settings by setting OPT_X_TLS_NEWCTX
+        # to 0, but this needs to be the last option set, and since the config dictionary is not
+        # sorted, this is not necessarily true. Sort the list of options so that if OPT_X_TLS_NEWCTX
+        # is present, it is applied last.
+        options = self.config.get('OPTIONS', {}).items()
+        options.sort(key=lambda x: x[0] == 'OPT_X_TLS_NEWCTX')
+
+        for opt, value in options:
             if isinstance(opt, basestring):
                 opt = getattr(ldap, opt)
 
@@ -253,8 +264,8 @@ class LDAPLoginManager(object):
     def ldap_login(self, username, password):
         """
         Authenticate a user using ldap. This will return a userdata dict
-        if successfull. 
-        ldap_login will return None if the user does not exist or if the credentials are invalid 
+        if successfull.
+        ldap_login will return None if the user does not exist or if the credentials are invalid
         """
         self.connect()
 
@@ -263,5 +274,3 @@ class LDAPLoginManager(object):
         else:
             result = self.direct_bind(username, password)
         return result
-
-
