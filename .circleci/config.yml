@@ -18,14 +18,6 @@ jobs:
 
       # Commands
       - PYTHON: /home/circleci/miniconda/bin/python
-
-      # Variable expansion is not (yet?) supported on circleci 2.0, this wont work
-      # - PATH: /home/circleci/miniconda/bin:$PATH
-
-      # There are no deploy keys on docker hub yet
-      # so sean set up a `continuumanacondadeploy` user that everyone can use.
-      # The DOCKER_PASS envvar is privately stored on circleCI
-      # we have this info stored in the continuum password wallet.
       - DOCKER_EMAIL: sean.ross-ross+docker@continuum.io
       - DOCKER_USER: continuumanacondadeploy
 
@@ -38,16 +30,16 @@ jobs:
       - run:
           name: Install conda
           command: |
-            # The patches below assume Python 2.7
             wget https://repo.continuum.io/miniconda/Miniconda2-4.3.30-Linux-x86_64.sh
             bash Miniconda2-4.3.30-Linux-x86_64.sh -b -p $MINICONDA
             source $MINICONDA/bin/activate
             conda info
       - run:
-          name: Install conda-build and constructor
+          name: Install conda-build
           command: |        
             source $MINICONDA/bin/activate
             conda install "conda-build"
+            conda config --add channels https://conda.anaconda.org/wakari
       - run:
           name: Get conda information
           command: |        
