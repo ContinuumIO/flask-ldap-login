@@ -39,7 +39,7 @@ jobs:
           command: |        
             source $MINICONDA/bin/activate
             conda install "conda-build"
-            conda config --add channels https://conda.anaconda.org/wakari
+            conda config --append channels https://conda.anaconda.org/wakari
       - run:
           name: Get conda information
           command: |        
