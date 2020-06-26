@@ -94,7 +94,7 @@ class LDAPLoginManager(object):
     def init_app(self, app):
         '''
         Configures an application. This registers an `after_request` call, and
-        attaches this `LoginManager` to it as `app.login_manager`.
+        attaches this `LoginManager` to it as `app.ldap_login_manager`.
         '''
 
         self._config = app.config.get('LDAP', {})
