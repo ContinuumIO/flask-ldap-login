@@ -40,6 +40,8 @@ update the application like::
 
 
 """
+from __future__ import absolute_import
+
 import logging
 
 import flask
