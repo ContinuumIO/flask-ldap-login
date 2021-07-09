@@ -1,0 +1,85 @@
+version: 2
+
+
+jobs:
+  build_test_and_deploy:
+    machine:
+      image:
+        enabled: true
+    environment:
+      - TZ: "/usr/share/zoneinfo/America/Chicago"
+      - DEBIAN_FRONTEND: noninteractive
+
+      # Directories
+      - MINICONDA: /home/circleci/miniconda
+      - CONDA_BUILD_DIR: /home/circleci/miniconda/conda-bld
+      - ARTIFACTS_DIR: /home/circleci/artifacts
+      - TEST_REPORTS_DIR: /home/circleci/test_reports
+
+      # Commands
+      - PYTHON: /home/circleci/miniconda/bin/python
+      - DOCKER_EMAIL: sean.ross-ross+docker@continuum.io
+      - DOCKER_USER: continuumanacondadeploy
+
+    steps:
+      - checkout
+      - run:
+          name: Install circle ci docker
+          command: |
+            curl -sSL https://s3.amazonaws.com/circle-downloads/install-circleci-docker.sh | bash -s -- 1.10.0
+      - run:
+          name: Install conda
+          command: |
+            wget https://repo.continuum.io/miniconda/Miniconda2-4.3.30-Linux-x86_64.sh
+            bash Miniconda2-4.3.30-Linux-x86_64.sh -b -p $MINICONDA
+            source $MINICONDA/bin/activate
+            conda info
+      - run:
+          name: Install conda-build
+          command: |        
+            source $MINICONDA/bin/activate
+            conda install "conda-build"
+            conda config --append channels https://conda.anaconda.org/wakari
+      - run:
+          name: Get conda information
+          command: |        
+            source $MINICONDA/bin/activate
+            conda info
+            git describe --tag || git fetch --unshallow
+      - run:
+          name: Build conda package
+          command: |
+            source $MINICONDA/bin/activate
+            conda build conda.recipe
+            mkdir $ARTIFACTS_DIR
+            cp $CONDA_BUILD_DIR/linux-64/*.tar.bz2 $ARTIFACTS_DIR
+
+      - store_artifacts:
+          path: /home/circleci/artifacts/
+      - store_test_results:
+          path: /home/circleci/test_reports/
+
+      - run:
+          name: Deploy package to Anaconda Cloud
+          command: |
+            source $MINICONDA/bin/activate
+            echo "Current branch: $CIRCLE_BRANCH"
+            echo "Current tag: $CIRCLE_TAG"
+
+            if [ ! -z "$CIRCLE_TAG" ]; then
+              conda install anaconda-client -y;
+              echo "Deploying to beta label on tag $CIRCLE_TAG";
+              anaconda -t $ANACONDA_ORG_TOKEN upload --label beta $CONDA_BUILD_DIR/linux-64/binstar-server*.tar.bz2;
+            elif [ "$CIRCLE_BRANCH" == "develop" ]; then
+              conda install anaconda-client -y;
+              echo "Deploying to dev label on branch $CIRCLE_BRANCH";
+              anaconda -t $ANACONDA_ORG_TOKEN upload --label dev $CONDA_BUILD_DIR/linux-64/binstar-server*.tar.bz2;
+            else
+              echo "No packages to deploy!";
+            fi
+
+workflows:
+  version: 2
+  build_test_and_deploy:
+    jobs:
+      - build_test_and_deploy
