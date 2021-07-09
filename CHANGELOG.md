@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5 - 2021-07-09
+
+* Fix flask_wtf import for >=0.9 versions
+
 ## 0.3.4 - 2017-10-30
 
 * Disabled LDAP referrals by default.
