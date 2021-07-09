@@ -1,4 +1,10 @@
-from flask.ext.wtf import Form
+
+# Incompatible after 0.9.0
+try:
+    from flask.ext.wtf import Form
+except ImportError:
+    from flask_wtf import FlaskForm as Form
+
 import wtforms
 from wtforms import validators
 from flask import flash, current_app
