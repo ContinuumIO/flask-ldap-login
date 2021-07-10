@@ -247,11 +247,11 @@ class LDAPLoginManager(object):
         options.sort(key=lambda x: x[0] == 'OPT_X_TLS_NEWCTX')
 
         for opt, value in options:
-            if isinstance(opt, str):
+            if isinstance(opt, basestring):
                 opt = getattr(ldap, opt)
 
             try:
-                if isinstance(value, str):
+                if isinstance(value, basestring):
                     value = getattr(ldap, value)
             except AttributeError:
                 pass
