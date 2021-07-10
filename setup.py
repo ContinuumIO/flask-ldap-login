@@ -14,7 +14,7 @@ setup(
 
     install_requires=['flask',
                       'flask-wtf',
-                      'python-ldap'
+                      'pyldap'
                       ],
 
     entry_points={
