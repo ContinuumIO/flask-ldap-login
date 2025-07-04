@@ -39,7 +39,7 @@ Once the actual application object has been created, you can configure it for lo
 # Testing your Configuration
 
 Run the `flask-ldap-login-check` command against your app
-to test that it can successully connect to your ldap server.
+to test that it can successfully connect to your ldap server.
 
     flask-ldap-login-check examples.direct_bind:app --username 'me' --password 'super secret'
 
@@ -48,7 +48,7 @@ to test that it can successully connect to your ldap server.
 ## save_user callback
 
 You will need to provide a `save_user` callback.
-This callback is used store any users looked up in the ldap diectory into your database. For example:
+This callback is used store any users looked up in the ldap directory into your database. For example:
 Callback must return a `user` object or `None` if the user can not be created.
 
     @ldap_mgr.save_user
@@ -64,7 +64,7 @@ Callback must return a `user` object or `None` if the user can not be created.
 
 ## LDAPLoginForm form
 
-The `LDAPLoginForm` is provided to you for your convinience.
+The `LDAPLoginForm` is provided to you for your convenience.
 Once validated the form  will contain a valid `form.user`
 object which you can use in your application.
 In this example, the user object is logged in using the `login_user` from The
@@ -123,7 +123,7 @@ e.g.:
 ### KEY_MAP:
 
 This is a dict mapping application context to ldap.
-An application may expect user data to be consistant and not all ldap
+An application may expect user data to be consistent and not all ldap
 setups use the same configuration:
 
     'application_key': 'ldap_key'
